@@ -1,0 +1,60 @@
+<div class="container col-md-6">
+  <div
+    class="card text-center btn-light mb-3"
+    (click)="showCityEnter()"
+    style="width: 18rem; background-color: #EBF5FB;"
+  >
+    <img
+      class="card-img img-responsive"
+      *ngIf="weatherFlag"
+      src="{{ this.weatherImg }}"
+    />
+    <img
+      class="card-img img-responsive"
+      *ngIf="!weatherFlag"
+      src="../../assets/Temp.jpg"
+    />
+
+    <div class="card-body">
+      <h5 class="card-title" *ngIf="!weatherFlag">Weather Data</h5>
+      <h5 class="card-title" *ngIf="weatherFlag">
+        {{ this.isError || this.weatherData?.name }}
+      </h5>
+      <p class="card-text" *ngIf="weatherFlag">
+        Temperature (C): {{ this.weatherData?.main.temp }}<br />
+        Feels Like (C): {{ this.weatherData?.main.feels_like }}<br />
+        Humidity (%): {{ this.weatherData?.main.humidity }}<br />
+        Pressure (hPa): {{ this.weatherData?.main.pressure }}<br />
+        Weather: {{ (this.weatherData?.weather)[0].description }}<br />
+        Wind Speed (m/s): {{ this.weatherData?.wind.speed }}
+      </p>
+      <form
+        [formGroup]="weatherSearchCity"
+        (ngSubmit)="showWeatherData(weatherSearchCity.value.location)"
+      >
+        <div class="form-group" *ngIf="enterCity">
+          <input
+            class="form-control"
+            type="text"
+            id="weatherLocation"
+            aria-describedby="weatherLocation"
+            placeholder="Please input a Location"
+            formControlName="location"
+          />
+        </div>
+        <div class="text-center">
+          <button
+            type="submit"
+            class="btn btn-primary btn-md"
+            (click)="showWeatherDataTemplate()"
+          >
+            Edit
+          </button>
+          <div class="text-muted" style="margin-top: 50px" *ngIf="weatherFlag">
+            Last Updated: {{ this.updatedTime }}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
