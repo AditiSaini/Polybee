@@ -31,7 +31,7 @@ export class PanelComponent implements OnInit {
       location: ['']
     });
 
-    interval(300000).subscribe(x => this.showWeatherData(this.cityData));
+    interval(30000).subscribe(x => this.showWeatherData(this.cityData));
   }
 
   showWeatherDataTemplate() {
