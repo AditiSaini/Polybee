@@ -2,6 +2,7 @@ import { Component, OnInit, Injectable, OnDestroy, Input } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { WeatherApiService } from '../weather-api.service';
 import { interval } from 'rxjs';
+import { OnlineOfflineService } from '../online-offline.service';
 
 @Component({
   selector: 'app-panel',
@@ -20,18 +21,19 @@ export class PanelComponent implements OnInit {
   public cityData: String;
   public interval: any;
   public updatedTime: String = 'Nil';
+  public lastWeatherData = {};
 
   constructor(
     private weatherService: WeatherApiService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private readonly onlineOfflineService: OnlineOfflineService
   ) {}
 
   ngOnInit(): void {
     this.weatherSearchCity = this.formBuilder.group({
       location: ['']
     });
-
-    interval(30000).subscribe(x => this.showWeatherData(this.cityData));
+    interval(300000).subscribe(x => this.showWeatherData(this.cityData));
   }
 
   showWeatherDataTemplate() {
@@ -57,15 +59,38 @@ export class PanelComponent implements OnInit {
     this.updatedTime =
       today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
 
+    console.log(this.onlineOfflineService);
+    if (this.onlineOfflineService.isOnline) {
+      console.log('Went online');
+      this.getWeatherFromApi(city);
+    } else {
+      console.log('Went offline');
+    }
+    // console.log(this.weatherData);
+  }
+
+  getWeatherFromApi(city) {
     this.weatherService.getWeather(city).subscribe(
       data => (
         (this.weatherData = data),
+        this.structureResponseAndAdd(),
         (this.weatherImg =
           '../../assets/' + this.weatherData.weather[0].main + '.jpg')
       ),
       error => (this.isError = 'Error... Please enter a city again!')
     );
-    console.log(this.weatherData);
+  }
+
+  getLastUpdatedData(city) {
+    console.log('In last updated data');
+    for (let key in this.lastWeatherData) {
+      console.log(this.lastWeatherData[key]);
+    }
+  }
+
+  structureResponseAndAdd() {
+    this.lastWeatherData[this.weatherData.name] = this.weatherData;
+    // console.log(this.lastWeatherData);
   }
 }
 
