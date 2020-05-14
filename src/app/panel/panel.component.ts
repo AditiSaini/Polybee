@@ -22,6 +22,7 @@ export class PanelComponent implements OnInit {
   public interval: any;
   public updatedTime: String = 'Nil';
   public lastWeatherData = {};
+  public status = 'Online';
 
   constructor(
     private weatherService: WeatherApiService,
@@ -33,7 +34,7 @@ export class PanelComponent implements OnInit {
     this.weatherSearchCity = this.formBuilder.group({
       location: ['']
     });
-    interval(300000).subscribe(x => this.showWeatherData(this.cityData));
+    interval(30000).subscribe(x => this.showWeatherData(this.cityData));
   }
 
   showWeatherDataTemplate() {
@@ -58,15 +59,15 @@ export class PanelComponent implements OnInit {
     var today = new Date();
     this.updatedTime =
       today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
-
-    console.log(this.onlineOfflineService);
     if (this.onlineOfflineService.isOnline) {
+      this.status = 'Online';
       console.log('Went online');
       this.getWeatherFromApi(city);
     } else {
+      this.status = 'Offline';
       console.log('Went offline');
+      this.getLastUpdatedData(city);
     }
-    // console.log(this.weatherData);
   }
 
   getWeatherFromApi(city) {
@@ -82,15 +83,21 @@ export class PanelComponent implements OnInit {
   }
 
   getLastUpdatedData(city) {
-    console.log('In last updated data');
-    for (let key in this.lastWeatherData) {
-      console.log(this.lastWeatherData[key]);
+    for (var key in this.lastWeatherData) {
+      if (key.toLowerCase().match(city.toLowerCase())) {
+        this.weatherData = this.lastWeatherData[key][0];
+        this.weatherImg =
+          '../../assets/' + this.weatherData.weather[0].main + '.jpg';
+        this.updatedTime = this.lastWeatherData[key][1];
+      }
     }
   }
 
   structureResponseAndAdd() {
-    this.lastWeatherData[this.weatherData.name] = this.weatherData;
-    // console.log(this.lastWeatherData);
+    this.lastWeatherData[this.weatherData.name] = [
+      this.weatherData,
+      this.updatedTime
+    ];
   }
 }
 
